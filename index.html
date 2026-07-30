@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diversity Stock & Bonds Portfolio — Investor Access</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --surface:#0F1830;
+    --line:#25314f;
+    --slate:#8CA0BE;
+    --slate-dim:#5C6E8F;
+    --paper:#EDEFF4;
+    --brass:#C9A96A;
+    --green:#4FAE8C;
+    --amber:#E0A458;
+    --red:#D96C6C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ink);color:var(--paper);
+    font-family:'Inter',sans-serif;min-height:100vh;
+  }
+  /* ---- Gate ---- */
+  #gate{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .gate-card{
+    width:100%;max-width:320px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:32px 28px;text-align:center;
+  }
+  .gate-card h1{
+    font-family:'Newsreader',serif;font-weight:500;font-size:19px;margin:0 0 6px;
+  }
+  .gate-card p{color:var(--slate);font-size:12.5px;margin:0 0 22px;}
+  .gate-card input{
+    width:100%;background:var(--ink);border:1px solid var(--line);border-radius:7px;
+    padding:11px 13px;color:var(--paper);font-size:15px;text-align:center;
+    letter-spacing:.1em;margin-bottom:12px;
+  }
+  .gate-card input:focus{outline:none;border-color:var(--brass);}
+  .gate-card button{
+    width:100%;background:var(--brass);color:var(--ink);border:none;border-radius:7px;
+    padding:11px;font-weight:600;font-size:14px;cursor:pointer;
+  }
+  .gate-error{color:var(--red);font-size:12px;margin-top:10px;min-height:14px;}
+
+  /* ---- List page ---- */
+  #list-page{display:none;max-width:520px;margin:0 auto;padding:40px 20px 60px;}
+  #list-page.visible{display:block;}
+  .list-head{margin-bottom:26px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
+  .list-head h1{font-family:'Newsreader',serif;font-weight:500;font-size:22px;margin:0 0 4px;}
+  .list-head p{color:var(--slate-dim);font-size:12.5px;margin:0;}
+  .add-btn{
+    flex-shrink:0;background:transparent;border:1px solid var(--line);color:var(--brass);
+    border-radius:7px;padding:8px 12px;font-size:12.5px;font-weight:600;cursor:pointer;
+  }
+  .add-btn:hover{border-color:var(--brass);}
+  .investor-row{
+    display:flex;align-items:center;gap:12px;justify-content:space-between;
+    padding:14px 4px;border-bottom:1px solid var(--line);
+  }
+  .investor-num{
+    font-family:'Inter',sans-serif;font-size:12px;color:var(--slate-dim);
+    width:26px;flex-shrink:0;text-align:right;
+  }
+  .investor-name-wrap{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+  .investor-name{font-size:14.5px;}
+  .investor-meta{font-size:12px;color:var(--slate-dim);text-align:right;}
+  .seal{display:inline-flex;align-items:center;gap:6px;}
+  .seal-dot{width:7px;height:7px;border-radius:50%;}
+  .seal-dot.active{background:var(--green);}
+  .seal-dot.pending{background:var(--amber);}
+  .list-foot{margin-top:20px;font-size:11.5px;color:var(--slate-dim);text-align:center;}
+  .empty-state{color:var(--slate-dim);font-size:13px;text-align:center;padding:30px 0;}
+
+  /* ---- Add investor modal ---- */
+  #add-modal{
+    display:none;position:fixed;inset:0;background:rgba(5,9,20,.72);
+    align-items:center;justify-content:center;padding:24px;z-index:10;
+  }
+  #add-modal.visible{display:flex;}
+  .add-card{
+    width:100%;max-width:340px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:26px 24px;
+  }
+  .add-card h2{font-family:'Newsreader',serif;font-weight:500;font-size:17px;margin:0 0 16px;}
+  .add-card label{display:block;font-size:11.5px;color:var(--slate-dim);margin:0 0 5px;}
+  .add-card input,.add-card select{
+    width:100%;background:var(--ink);border:1px solid var(--line);border-radius:7px;
+    padding:10px 12px;color:var(--paper);font-size:14px;margin-bottom:14px;
+  }
+  .add-card input:focus,.add-card select:focus{outline:none;border-color:var(--brass);}
+  .add-card-actions{display:flex;gap:10px;margin-top:4px;}
+  .add-card-actions button{
+    flex:1;border-radius:7px;padding:10px;font-size:13.5px;font-weight:600;cursor:pointer;border:none;
+  }
+  .btn-primary{background:var(--brass);color:var(--ink);}
+  .btn-secondary{background:transparent;border:1px solid var(--line) !important;color:var(--slate);}
+  .add-status{font-size:12px;margin-top:10px;min-height:14px;text-align:center;}
+  .add-status.error{color:var(--red);}
+  .add-status.success{color:var(--green);}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <h1>Diversity Stock & Bonds Portfolio</h1>
+    <p>Enter access code to view registered investors</p>
+    <input id="code-input" type="text" placeholder="Access code" autocomplete="off">
+    <button id="gate-btn">Enter</button>
+    <div class="gate-error" id="gate-error"></div>
+  </div>
+</div>
+
+<div id="list-page">
+  <div class="list-head">
+    <div>
+      <h1>Diversity Stock and Bonds Portfolio Investors Names</h1>
+      <p id="count-line">Loading…</p>
+    </div>
+    <button class="add-btn" id="open-add-btn">+ Add investor</button>
+  </div>
+  <div id="investor-list"></div>
+</div>
+
+<div id="add-modal">
+  <div class="add-card">
+    <h2>Add investor</h2>
+    <label for="new-name">Name</label>
+    <input id="new-name" type="text" placeholder="Full name">
+    <label for="new-status">Status</label>
+    <select id="new-status">
+      <option value="Active">Active</option>
+      <option value="Pending">Pending</option>
+    </select>
+    <div class="add-card-actions">
+      <button class="btn-secondary" id="cancel-add-btn">Cancel</button>
+      <button class="btn-primary" id="save-add-btn">Add</button>
+    </div>
+    <div class="add-status" id="add-status"></div>
+  </div>
+</div>
+
+<!-- Firebase SDK (compat build — simplest for plain script tags) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+/* Change this to whatever passcode you want to demo with */
+const ACCESS_CODE = "ZRAD";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCMmAcZ60SmTg1zFXsmYGv37vgBE_HfItw",
+  authDomain: "list-e5f18.firebaseapp.com",
+  databaseURL: "https://list-e5f18-default-rtdb.firebaseio.com",
+  projectId: "list-e5f18",
+  storageBucket: "list-e5f18.firebasestorage.app",
+  messagingSenderId: "784547031099",
+  appId: "1:784547031099:web:5e1c1474ca29c78b8e941e"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const investorsRef = db.ref("investors");
+
+document.getElementById('gate-btn').addEventListener('click', tryEnter);
+document.getElementById('code-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') tryEnter();
+});
+
+function tryEnter(){
+  const val = document.getElementById('code-input').value.trim();
+  if(val === ACCESS_CODE){
+    document.getElementById('gate').style.display='none';
+    const page = document.getElementById('list-page');
+    page.classList.add('visible');
+    listenForInvestors();
+  } else {
+    document.getElementById('gate-error').textContent = 'Incorrect code, try again.';
+  }
+}
+
+function listenForInvestors(){
+  investorsRef.on('value', snapshot => {
+    const data = snapshot.val() || {};
+    const investors = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+    // Newest first isn't required; keep insertion order as returned by Firebase (chronological by push key)
+    renderList(investors);
+  }, error => {
+    document.getElementById('investor-list').innerHTML =
+      `<div class="empty-state">Couldn't load investors: ${error.message}</div>`;
+  });
+}
+
+function renderList(investors){
+  document.getElementById('count-line').textContent = investors.length + ' investor' + (investors.length === 1 ? '' : 's') + ' on record';
+  const wrap = document.getElementById('investor-list');
+
+  if(investors.length === 0){
+    wrap.innerHTML = '<div class="empty-state">No investors yet — tap "Add investor" to register the first one.</div>';
+    return;
+  }
+
+  wrap.innerHTML = investors.map((inv, idx) => `
+    <div class="investor-row">
+      <div class="investor-name-wrap">
+        <div class="investor-num">${idx+1}.</div>
+        <div class="investor-name">${escapeHtml(inv.name || '')}</div>
+      </div>
+      <div class="investor-meta">
+        <div class="seal"><span class="seal-dot ${(inv.status || 'pending').toLowerCase()}"></span>${escapeHtml(inv.status || 'Pending')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---- Add investor modal ---- */
+const addModal = document.getElementById('add-modal');
+document.getElementById('open-add-btn').addEventListener('click', () => {
+  addModal.classList.add('visible');
+  document.getElementById('add-status').textContent = '';
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-status').value = 'Active';
+});
+document.getElementById('cancel-add-btn').addEventListener('click', () => {
+  addModal.classList.remove('visible');
+});
+document.getElementById('save-add-btn').addEventListener('click', saveNewInvestor);
+
+function saveNewInvestor(){
+  const name = document.getElementById('new-name').value.trim();
+  const status = document.getElementById('new-status').value;
+  const statusEl = document.getElementById('add-status');
+
+  if(!name){
+    statusEl.textContent = 'Enter a name first.';
+    statusEl.className = 'add-status error';
+    return;
+  }
+
+  const today = new Date();
+  const registered = today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  const saveBtn = document.getElementById('save-add-btn');
+  saveBtn.disabled = true;
+
+  investorsRef.push({ name, status, registered })
+    .then(() => {
+      statusEl.textContent = 'Added.';
+      statusEl.className = 'add-status success';
+      setTimeout(() => { addModal.classList.remove('visible'); }, 500);
+    })
+    .catch(err => {
+      statusEl.textContent = 'Failed: ' + err.message;
+      statusEl.className = 'add-status error';
+    })
+    .finally(() => { saveBtn.disabled = false; });
+}
+</script>
+</body>
+</html>
